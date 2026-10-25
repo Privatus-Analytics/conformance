@@ -284,7 +284,11 @@ test.describe('/auto (auto inject)', () => {
 
     const { html, headers } = await checkRawTag(request, '/auto', { props: false })
     expect(html.split('/js/pa.js').length - 1, 'pa.js is named once').toBe(1)
-    if (headers['content-length']) {
+    // A server that compresses its pages sends the compressed size, which is
+    // correct HTTP, while `html` here is already decompressed. So the length
+    // is only comparable for an uncompressed page.
+    const encoding = (headers['content-encoding'] ?? 'identity').toLowerCase()
+    if (headers['content-length'] && encoding === 'identity') {
       expect(Number(headers['content-length']), 'Content-Length matches the new body').toBe(
         Buffer.byteLength(html, 'utf8')
       )

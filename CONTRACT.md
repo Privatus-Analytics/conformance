@@ -164,8 +164,10 @@ On `/nasty`: `window.__pwned` stays undefined, and the nasty value comes back
 exactly the same from `privatusPageProps()`, from the pageview, from the
 DOM attribute and from the click event.
 
-On `/auto`: the tag is there exactly once, `Content-Length` (when sent)
-matches the new body, and a pageview arrives.
+On `/auto`: the tag is there exactly once, `Content-Length` (when sent on an
+uncompressed page) matches the new body, and a pageview arrives. A compressed
+page (`Content-Encoding` set) carries the compressed size, so its length is
+not compared.
 
 On `/off`: only the queue stub between the markers (with the nonce when
 there is a policy), no tracker tag, no page props script, no hits;
