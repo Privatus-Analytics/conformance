@@ -101,6 +101,38 @@
       "repo": "js",
       "dir": "next",
       "ref": "main"
+    },
+    {
+      "repo": "mkdocs",
+      "ref": "main"
+    },
+    {
+      "repo": "sphinx",
+      "ref": "main"
+    },
+    {
+      "repo": "jekyll",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "eleventy",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "docusaurus",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "vitepress",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "gatsby",
+      "ref": "main"
     }
   ]
 }
