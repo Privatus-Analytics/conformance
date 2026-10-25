@@ -60,6 +60,22 @@
     {
       "repo": "swift",
       "ref": "main"
+    },
+    {
+      "repo": "php",
+      "ref": "main"
+    },
+    {
+      "repo": "java",
+      "ref": "main"
+    },
+    {
+      "repo": "kotlin",
+      "ref": "main"
+    },
+    {
+      "repo": "dotnet",
+      "ref": "main"
     }
   ]
 }
