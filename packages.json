@@ -28,6 +28,38 @@
     {
       "repo": "r",
       "ref": "main"
+    },
+    {
+      "repo": "perl",
+      "ref": "main"
+    },
+    {
+      "repo": "haskell",
+      "ref": "main"
+    },
+    {
+      "repo": "ocaml",
+      "ref": "main"
+    },
+    {
+      "repo": "lua",
+      "ref": "main"
+    },
+    {
+      "repo": "elixir",
+      "ref": "main"
+    },
+    {
+      "repo": "clojure",
+      "ref": "main"
+    },
+    {
+      "repo": "rust",
+      "ref": "main"
+    },
+    {
+      "repo": "swift",
+      "ref": "main"
     }
   ]
 }
