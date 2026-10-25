@@ -1,8 +1,33 @@
 {
   "comment": "Package repos in the Privatus-Analytics org that ship example/ (see CONTRACT.md). The workflow tests each one.",
   "packages": [
-    { "repo": "python", "ref": "main" },
-    { "repo": "go", "ref": "main" },
-    { "repo": "rails", "ref": "main" }
+    {
+      "repo": "python",
+      "ref": "main"
+    },
+    {
+      "repo": "go",
+      "ref": "main"
+    },
+    {
+      "repo": "rails",
+      "ref": "main"
+    },
+    {
+      "repo": "dart",
+      "ref": "main"
+    },
+    {
+      "repo": "jsr",
+      "ref": "main"
+    },
+    {
+      "repo": "PrivatusAnalytics.jl",
+      "ref": "main"
+    },
+    {
+      "repo": "r",
+      "ref": "main"
+    }
   ]
 }
