@@ -39,6 +39,9 @@ jobs:
     timeout-minutes: 30
     strategy:
       fail-fast: false
+      # Every job pulls base images from Docker Hub without signing in, and
+      # all of them at once ran into its rate limit (2026-10-25).
+      max-parallel: 8
       matrix:
         package: ${{ fromJSON(needs.list.outputs.packages) }}
     steps:
