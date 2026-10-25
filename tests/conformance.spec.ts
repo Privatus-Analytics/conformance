@@ -298,20 +298,75 @@ test.describe('/auto (auto inject)', () => {
   })
 })
 
-test.describe('/off (forced off)', () => {
-  test('prints nothing and sends nothing', async ({ page, request }) => {
+// The HTML between the two marker meta tags on /off and /off-plain.
+function betweenMarkers(html: string): string {
+  const between = html.match(/<meta name="privatus-off-start"[^>]*>([\s\S]*?)<meta name="privatus-off-end"/i)
+  expect(between, 'the page has the two marker meta tags (CONTRACT.md)').not.toBeNull()
+  return between![1].trim()
+}
+
+test.describe('/off (forced off, queue stub on)', () => {
+  test('prints only the queue stub', async ({ request }) => {
     const response = await request.get(withTag('/off', runTag()))
+    expect(response.status()).toBe(200)
+    const html = await response.text()
+    expect(trackerTags(html), 'no tracker tag').toEqual([])
+    expect(html, 'no tracker script').not.toContain('/js/pa.js')
+    expect(html, 'no page props script').not.toContain('privatusPageProps')
+
+    const printed = betweenMarkers(html)
+    const scripts = [...printed.matchAll(/<script\b([^>]*)>([\s\S]*?)<\/script>/gi)]
+    expect(scripts, 'the helper printed one script: the queue stub').toHaveLength(1)
+    expect(printed, 'nothing but the queue stub between the markers').toBe(scripts[0][0])
+    expect(scripts[0][2], 'the script is the official queue stub').toBe(QUEUE_STUB)
+    expect(attribute(scripts[0][0], 'src'), 'the stub is inline').toBeUndefined()
+    if (response.headers()['content-security-policy']) {
+      expect(attribute(scripts[0][0], 'nonce'), 'the stub has the nonce').toBe(NONCE)
+    }
+  })
+
+  test('privatus.track queues and does not throw, and nothing is sent', async ({ page, request }) => {
+    const log = await watchBrowser(page)
+    const tag = runTag()
+    await page.goto(withTag('/off', tag))
+    const result = await page.evaluate(() => {
+      const pa = (window as unknown as { privatus?: { q?: unknown[]; track?: (n: string) => void } }).privatus
+      if (!pa || !Array.isArray(pa.q)) return { stub: false, threw: null, queued: null }
+      const before = pa.q.length
+      let threw: string | null = null
+      try {
+        pa.track!('x')
+      } catch (error) {
+        threw = String(error)
+      }
+      return { stub: true, threw, queued: pa.q.slice(before) }
+    })
+    expect(result.stub, 'window.privatus exists with a q array').toBe(true)
+    expect(result.threw, 'privatus.track does not throw').toBeNull()
+    expect(result.queued, 'the call goes onto the queue').toEqual([['track', ['x']]])
+    expect(
+      await page.evaluate(() => document.querySelectorAll('script[src*="/js/pa.js"]').length),
+      'no tracker in the page'
+    ).toBe(0)
+    await sleep(1500)
+    expect(await hitsFor(request, tag), 'no hits').toEqual([])
+    await expectCleanBrowser(page, log)
+  })
+})
+
+test.describe('/off-plain (forced off, no queue stub)', () => {
+  test('prints nothing and sends nothing', async ({ page, request }) => {
+    const response = await request.get(withTag('/off-plain', runTag()))
     expect(response.status()).toBe(200)
     const html = await response.text()
     expect(html, 'no tracker tag').not.toContain('/js/pa.js')
     expect(html, 'no page props script').not.toContain('privatusPageProps')
-    const between = html.match(/<meta name="privatus-off-start"[^>]*>([\s\S]*?)<meta name="privatus-off-end"/i)
-    expect(between, 'the page has the two marker meta tags (CONTRACT.md)').not.toBeNull()
-    expect(between![1].trim(), 'the helper printed nothing between the markers').toBe('')
+    expect(html, 'no queue stub').not.toContain(QUEUE_STUB)
+    expect(betweenMarkers(html), 'the helper printed nothing between the markers').toBe('')
 
     const log = await watchBrowser(page)
     const tag = runTag()
-    await page.goto(withTag('/off', tag))
+    await page.goto(withTag('/off-plain', tag))
     expect(await page.evaluate(() => typeof (window as unknown as { privatus?: unknown }).privatus)).toBe('undefined')
     await sleep(1500)
     expect(await hitsFor(request, tag), 'no hits').toEqual([])

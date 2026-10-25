@@ -11,7 +11,9 @@ Chromium and check what the browser sends. A package passes when:
 - pageviews and events reach the collector with the right site id and props;
 - buttons, forms and click map names made with the package's helpers work;
 - values with `</script>`, quotes and odd line breaks are escaped safely;
-- auto inject adds the tag once, and a tag turned off prints nothing.
+- auto inject adds the tag once;
+- a tag turned off prints only the queue stub (when it is on), so
+  `privatus.track` calls still work, and otherwise prints nothing.
 
 What each example app must do is in [CONTRACT.md](CONTRACT.md).
 

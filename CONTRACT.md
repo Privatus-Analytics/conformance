@@ -106,17 +106,35 @@ test.
 
 ### `GET /off`
 
-The tag helper called with **enabled forced off** (and the page props, no
-queue stub). It must print nothing. Put the call alone between two marker
-tags, so the suite can see that nothing was printed:
+The tag helper called with **enabled forced off**, the page props and the
+**queue stub on**. It must print the queue stub and nothing else: no
+tracker tag and no page props script (see "When the tag is off" below).
+The stub carries the nonce when there is a policy. Put the call alone
+between two marker tags, so the suite can see exactly what was printed:
 
 ```html
 <head>
 <meta charset="utf-8">
 <title>Off</title>
-<meta name="privatus-off-start">{{ the tag helper, enabled off }}<meta name="privatus-off-end">
+<meta name="privatus-off-start">{{ the tag helper, enabled off, queue stub on }}<meta name="privatus-off-end">
 </head>
 ```
+
+### `GET /off-plain`
+
+The same page as `/off`, but with the **queue stub off** (enabled forced
+off, the page props). It must print nothing at all between the markers.
+
+### When the tag is off
+
+The tag is off when it is turned off (`enabled: false`, or outside the
+production environments by default) or when there is no site id.
+
+- **Queue stub on:** print the queue stub, and nothing else. No tracker tag,
+  no page props script. Then `privatus.track(...)` calls in the app's own
+  JavaScript do not throw in development; they wait in the queue and are
+  never sent.
+- **Queue stub off:** print nothing at all.
 
 ## What the suite checks
 
@@ -149,7 +167,12 @@ DOM attribute and from the click event.
 On `/auto`: the tag is there exactly once, `Content-Length` (when sent)
 matches the new body, and a pageview arrives.
 
-On `/off`: nothing between the markers, no tracker, no hits.
+On `/off`: only the queue stub between the markers (with the nonce when
+there is a policy), no tracker tag, no page props script, no hits;
+`window.privatus` has a `q` list, and `privatus.track('x')` does not throw
+and adds the call to `q`.
+
+On `/off-plain`: nothing between the markers, no `window.privatus`, no hits.
 
 ## Things to know
 
