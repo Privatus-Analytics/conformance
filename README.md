@@ -84,7 +84,11 @@ Then run `./run-all.sh` before you commit the new copy.
 
 1. Add `example/` to the package, following [CONTRACT.md](CONTRACT.md).
 2. Run `./run.sh ../<package>` until it passes.
-3. Add the repo to `packages.json`, so the nightly run tests it.
+3. Add the repo to `packages.json`, so the nightly run tests it. A package
+   inside a monorepo is listed with its folder, for example
+   `{ "repo": "js", "dir": "express" }`. Its Dockerfile can reach the rest of
+   the repo through a `FROM ... AS workspace` stage: `run.sh` passes the folder
+   above the package (or `WORKSPACE_DIR`) as that build context.
 
 ## Things to know
 

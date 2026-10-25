@@ -25,7 +25,7 @@ jobs:
           ONLY: ${{ inputs.package }}
         run: |
           if [ -n "$ONLY" ]; then
-            packages=$(jq -c --arg only "$ONLY" '[.packages[] | select(.repo == $only)]' packages.json)
+            packages=$(jq -c --arg only "$ONLY" '[.packages[] | select(.repo == $only or .dir == $only)]' packages.json)
           else
             packages=$(jq -c '.packages' packages.json)
           fi
@@ -34,7 +34,7 @@ jobs:
 
   conformance:
     needs: list
-    name: ${{ matrix.package.repo }}
+    name: ${{ matrix.package.dir && format('{0}/{1}', matrix.package.repo, matrix.package.dir) || matrix.package.repo }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     strategy:
@@ -54,18 +54,19 @@ jobs:
       - name: Run the conformance tests
         env:
           CI: "true"
-        run: ./run.sh packages/${{ matrix.package.repo }}
+        run: ./run.sh packages/${{ matrix.package.repo }}${{ matrix.package.dir && format('/{0}', matrix.package.dir) || '' }}
 
       - name: Summary
         if: always()
         run: |
           if [ "${{ job.status }}" = "success" ]; then result=PASS; else result=FAIL; fi
-          echo "| ${{ matrix.package.repo }} | $result |" >> "$GITHUB_STEP_SUMMARY"
+          echo "| ${{ matrix.package.repo }}${{ matrix.package.dir && format('/{0}', matrix.package.dir) || '' }} | $result |" >> "$GITHUB_STEP_SUMMARY"
 
       - name: Upload the report
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: report-${{ matrix.package.repo }}
-          path: reports/${{ matrix.package.repo }}
+          # run.sh names the report after the package folder.
+          name: report-${{ matrix.package.repo }}${{ matrix.package.dir && format('-{0}', matrix.package.dir) || '' }}
+          path: reports/${{ matrix.package.dir || matrix.package.repo }}
           retention-days: 14

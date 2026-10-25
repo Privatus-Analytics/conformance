@@ -1,5 +1,5 @@
 {
-  "comment": "Package repos in the Privatus-Analytics org that ship example/ (see CONTRACT.md). The workflow tests each one.",
+  "comment": "Package repos in the Privatus-Analytics org that ship example/ (see CONTRACT.md). The workflow tests each one. \"dir\" names a package folder inside a monorepo.",
   "packages": [
     {
       "repo": "python",
@@ -75,6 +75,31 @@
     },
     {
       "repo": "dotnet",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "express",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "fastify",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "hono",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "nestjs",
+      "ref": "main"
+    },
+    {
+      "repo": "js",
+      "dir": "next",
       "ref": "main"
     }
   ]

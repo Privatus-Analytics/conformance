@@ -1,7 +1,10 @@
 # One conformance run: the mock collector, one package's example app and the
 # Playwright tests. Use ./run.sh <package-dir> rather than calling this directly.
 #
-#   PACKAGE_DIR  the package folder (it has example/Dockerfile). Required.
+#   PACKAGE_DIR    the package folder (it has example/Dockerfile). Required.
+#   WORKSPACE_DIR  the folder an example's `workspace` build stage sees, for a
+#                  package that lives inside a monorepo (js/express needs
+#                  js/html-core). Default: the folder above PACKAGE_DIR.
 #   REPORT_DIR   where the test reports go. Default ./reports.
 name: ${COMPOSE_PROJECT_NAME:-conformance}
 
@@ -22,6 +25,10 @@ services:
     build:
       context: ${PACKAGE_DIR:?set PACKAGE_DIR to the package folder}
       dockerfile: example/Dockerfile
+      # Overrides a `FROM ... AS workspace` stage when the Dockerfile has
+      # one. Dockerfiles without it never read this context.
+      additional_contexts:
+        workspace: ${WORKSPACE_DIR:-${PACKAGE_DIR}/..}
     environment:
       <<: *env
       PORT: "8080"
