@@ -1,0 +1,71 @@
+name: Conformance
+
+on:
+  schedule:
+    - cron: "17 4 * * *" # every night
+  workflow_dispatch:
+    inputs:
+      package:
+        description: "Test one package only (its repo name, for example python). Empty tests them all."
+        required: false
+        default: ""
+
+permissions:
+  contents: read
+
+jobs:
+  list:
+    runs-on: ubuntu-latest
+    outputs:
+      packages: ${{ steps.list.outputs.packages }}
+    steps:
+      - uses: actions/checkout@v4
+      - id: list
+        env:
+          ONLY: ${{ inputs.package }}
+        run: |
+          if [ -n "$ONLY" ]; then
+            packages=$(jq -c --arg only "$ONLY" '[.packages[] | select(.repo == $only)]' packages.json)
+          else
+            packages=$(jq -c '.packages' packages.json)
+          fi
+          if [ "$packages" = "[]" ]; then echo "No package named $ONLY in packages.json" >&2; exit 1; fi
+          echo "packages=$packages" >> "$GITHUB_OUTPUT"
+
+  conformance:
+    needs: list
+    name: ${{ matrix.package.repo }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      fail-fast: false
+      matrix:
+        package: ${{ fromJSON(needs.list.outputs.packages) }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check out Privatus-Analytics/${{ matrix.package.repo }}
+        uses: actions/checkout@v4
+        with:
+          repository: Privatus-Analytics/${{ matrix.package.repo }}
+          ref: ${{ matrix.package.ref }}
+          path: packages/${{ matrix.package.repo }}
+
+      - name: Run the conformance tests
+        env:
+          CI: "true"
+        run: ./run.sh packages/${{ matrix.package.repo }}
+
+      - name: Summary
+        if: always()
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then result=PASS; else result=FAIL; fi
+          echo "| ${{ matrix.package.repo }} | $result |" >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload the report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report-${{ matrix.package.repo }}
+          path: reports/${{ matrix.package.repo }}
+          retention-days: 14

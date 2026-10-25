@@ -1,0 +1,41 @@
+# One conformance run: the mock collector, one package's example app and the
+# Playwright tests. Use ./run.sh <package-dir> rather than calling this directly.
+#
+#   PACKAGE_DIR  the package folder (it has example/Dockerfile). Required.
+#   REPORT_DIR   where the test reports go. Default ./reports.
+name: ${COMPOSE_PROJECT_NAME:-conformance}
+
+x-env: &env
+  PRIVATUS_SITE_ID: pa_CONFORMANCE1
+  PRIVATUS_SCRIPT_HOST: http://mock:4000
+
+services:
+  mock:
+    build:
+      context: .
+      dockerfile: mock/Dockerfile
+    environment:
+      PUBLIC_ORIGIN: http://mock:4000
+
+  # Not "app": Chromium forces HTTPS for every .app hostname (HSTS preload).
+  example-app:
+    build:
+      context: ${PACKAGE_DIR:?set PACKAGE_DIR to the package folder}
+      dockerfile: example/Dockerfile
+    environment:
+      <<: *env
+      PORT: "8080"
+
+  tests:
+    build:
+      context: .
+      dockerfile: Dockerfile.tests
+    depends_on: [mock, example-app]
+    environment:
+      <<: *env
+      BASE_URL: http://example-app:8080
+      MOCK_URL: http://mock:4000
+      CI: ${CI:-}
+    ipc: host
+    volumes:
+      - ${REPORT_DIR:-./reports}:/suite/reports

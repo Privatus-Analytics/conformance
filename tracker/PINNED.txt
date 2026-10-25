@@ -1,0 +1,9 @@
+# The tracker files the mock collector serves, copied from the web app's tracker/src.
+# Refresh with scripts/refresh-tracker.sh. Do not edit the copies by hand.
+copied: 2026-10-25T02:32:33Z
+sha256 pa.ask.js 969ea2bcb67f4bd182575e541716ac3161fc10c30315c81d06f49540597505f0
+sha256 pa.auto.js 648a59629c2b81c3b765dcca0688a16d2127bcc934f75b98303313d63205f68d
+sha256 pa.clicks.js cb8bfc0736999fee0fd4d4458cea8a5c0509919684ca7a0f02c13046d90405f7
+sha256 pa.js 892d742ee59d11403cbed86988d9e144d1cc4f10ab8a82be8c4b47ad2e16eca8
+sha256 pa.overlay.js cb23fb77e18d6630458aff5391a749a652026231ad8ae2dead2f75a92b5be4c8
+sha256 pa.vitals.js 0f42a4dcf90135b20f19eb548a6a68aa14edb19fd690b011a5a5922a70bd19b0
