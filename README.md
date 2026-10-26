@@ -56,7 +56,7 @@ Like the real server, it fills in the tracker's `__PA_TRACKER_ORIGIN__`
 placeholder with its own address, so the tracker sends hits back to it.
 
 `POST /api/event` takes a hit the way the real endpoint does: a JSON object
-of up to 32 KB, answered with `202` and no body. It turns the tracker's
+of up to 32 KB, and returns `202` with no body. It turns the tracker's
 short keys (`s`, `t`, `u`, `p` and so on) into their long names, notes
 anything the real server would drop, and keeps every hit in memory.
 
@@ -64,7 +64,7 @@ anything the real server would drop, and keeps every hit in memory.
 |---|---|
 | `GET /__hits` | Every hit so far, oldest first, as JSON |
 | `POST /__reset` | Forgets every hit |
-| `GET /__health` | Answers `ok` |
+| `GET /__health` | Returns `ok` |
 
 Run it on its own with `node mock/server.mjs` (port 4000, or set `PORT`).
 
